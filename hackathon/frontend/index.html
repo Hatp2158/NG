@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NutriGuard | AI for Global Food Security</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            line-height: 1.6; 
+            color: #2d3748; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .app-shell { display: flex; min-height: 100vh; }
+        
+        /* SIDEBAR (Enhanced) */
+        .sidebar {
+            width: 280px; background: rgba(255,255,255,0.95); backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255,255,255,0.2); padding: 2rem 1.5rem;
+            position: fixed; height: 100vh; overflow-y: auto; z-index: 1000;
+        }
+        .sidebar-logo { display: flex; align-items: center; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid #e2e8f0; }
+        .sidebar-mark { width: 48px; height: 48px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.5rem; color: white; margin-right: 1rem; }
+        .sidebar-text span { font-size: 1.25rem; font-weight: 700; display: block; }
+        .sidebar-text small { color: #64748b; font-size: 0.875rem; }
+        .sidebar-section { margin-bottom: 2rem; }
+        .sidebar-label { font-size: 0.75rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1rem; }
+        .sidebar-item { width: 100%; background: none; border: none; padding: 0.75rem 1rem; border-radius: 10px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 0.95rem; transition: all 0.3s ease; margin-bottom: 0.5rem; }
+        .sidebar-item:hover, .sidebar-item.active { background: linear-gradient(135deg, #10b981, #059669); color: white; transform: translateX(4px); }
+        .sidebar-pill { background: rgba(255,255,255,0.3); padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+        .sidebar-item.active .sidebar-pill { background: rgba(255,255,255,0.8); }
+        .chip-region { display: inline-block; background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.8rem; font-weight: 500; margin-right: 0.75rem; margin-bottom: 0.5rem; cursor: pointer; transition: all 0.3s ease; }
+        .chip-region:hover, .chip-region.active { transform: scale(1.05); box-shadow: 0 5px 15px rgba(245, 158, 11, 0.4); }
+        .sidebar-footer { margin-top: auto; padding-top: 2rem; border-top: 1px solid #e2e8f0; font-size: 0.8rem; color: #64748b; }
+        .sidebar-meta { font-size: 0.75rem; opacity: 0.7; }
+
+        /* MAIN CONTENT */
+        .main-shell { flex: 1; margin-left: 280px; min-height: 100vh; }
+        header { background: rgba(255,255,255,0.95); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(0,0,0,0.1); padding: 1rem 2rem; position: sticky; top: 0; z-index: 999; }
+        .nav { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
+        .logo { display: flex; align-items: center; }
+        .logo-mark { width: 40px; height: 40px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.25rem; color: white; margin-right: 0.75rem; }
+        .logo-text span:first-child { font-weight: 700; font-size: 1.25rem; display: block; }
+        .logo-text span:last-child { font-size: 0.8rem; color: #64748b; }
+        .nav-links { display: flex; gap: 2rem; }
+        .nav-links a { color: #374151; text-decoration: none; font-weight: 500; transition: color 0.3s ease; }
+        .nav-links a:hover { color: #10b981; }
+        .button-ghost { background: transparent; border: 2px solid #10b981; color: #10b981; padding: 0.75rem 1.5rem; border-radius: 25px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
+        .button-ghost:hover { background: #10b981; color: white; transform: translateY(-2px); }
+
+        /* HERO SECTION (Enhanced with Country Selector) */
+        section { padding: 6rem 2rem; max-width: 1400px; margin: 0 auto; }
+        .hero-grid { display: grid; grid-template-columns: 1fr 420px; gap: 4rem; align-items: start; }
+        .section-label { background: linear-gradient(135deg, #03000af1, #1a1722e8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1rem; }
+        .badge-row { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
+        .badge-soft { background: rgba(139, 92, 246, 0.1); color: #271f3bff; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.85rem; font-weight: 500; }
+        .hero-title { font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 800; line-height: 1.1; margin-bottom: 1.5rem; background: linear-gradient(135deg, #1e293b, #334155); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero-highlight { background: linear-gradient(135deg, #10b981, #059669); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero-subtitle { font-size: 1.25rem; color: rgba(255,255,255,0.95); margin-bottom: 3rem; max-width: 600px; line-height: 1.7; }
+        .pill-row { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 3rem; }
+        .pill { background: rgba(16, 185, 129, 0.2); color: #10b981; padding: 0.5rem 1.25rem; border-radius: 25px; font-weight: 600; font-size: 0.9rem; }
+        .btn-primary { background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 1rem 2.5rem; border-radius: 25px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3); }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 20px 40px rgba(16, 185, 129, 0.4); }
+
+        /* HERO PANEL - NEW FEATURES */
+        .hero-panel { background: rgba(255,255,255,0.95); backdrop-filter: blur(20px); border-radius: 24px; padding: 2rem; border: 1px solid rgba(255,255,255,0.3); box-shadow: 0 25px 50px rgba(0,0,0,0.15); }
+        .panel-tabs { display: flex; margin-bottom: 2rem; border-radius: 12px; overflow: hidden; background: #f8fafc; }
+        .tab-button { flex: 1; background: none; border: none; padding: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
+        .tab-button.tab-active { background: linear-gradient(135deg, #10b981, #059669); color: white; }
+        .tab-content { display: none; }
+        .tab-visible { display: block; }
+        
+        /* NEW: COUNTRY SELECTOR */
+        .country-selector { margin-bottom: 1.5rem; }
+        .country-selector select { width: 100%; padding: 0.75rem 1rem; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 1rem; background: white; cursor: pointer; }
+        .panel-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; }
+        .panel-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .panel-subtitle { color: #64748b; font-size: 0.9rem; }
+        .panel-badge { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
+        .score-display { text-align: center; margin-bottom: 2rem; }
+        #heroFSI { font-size: 3.5rem; font-weight: 800; background: linear-gradient(135deg, #10b981, #059669); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: block; }
+        .score-display span:last-child { color: #64748b; font-size: 0.9rem; font-weight: 500; }
+        .score-bars { margin-bottom: 2rem; }
+        .score-row { display: flex; align-items: center; margin-bottom: 1rem; }
+        .score-name { width: 90px; font-weight: 600; margin-right: 1rem; }
+        .score-track { flex: 1; height: 12px; background: #e2e8f0; border-radius: 6px; overflow: hidden; margin-right: 1rem; }
+        .score-fill { height: 100%; background: linear-gradient(90deg, #10b981, #059669); border-radius: 6px; transition: width 0.8s ease; }
+        .score-fill.risk { background: linear-gradient(90deg, #ef4444, #dc2626); }
+        .score-value { font-weight: 700; min-width: 30px; text-align: right; }
+        .panel-footer { border-top: 1px solid #e2e8f0; padding-top: 1.5rem; }
+        .chip { display: inline-block; background: linear-gradient(135deg, #ef4444, #dc2626); color: white; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.85rem; margin-bottom: 0.5rem; }
+        .panel-footnote { color: #64748b; font-size: 0.85rem; }
+
+        /* NEW: WORLD MAP */
+        .world-map-section { grid-column: 1 / -1; background: rgba(255,255,255,0.95); backdrop-filter: blur(20px); border-radius: 24px; padding: 2.5rem; margin: 4rem 0; border: 1px solid rgba(255,255,255,0.3); text-align: center; }
+        .world-map { height: 400px; background: linear-gradient(135deg, #f8fafc, #e2e8f0); border-radius: 16px; margin: 0 auto 2rem; position: relative; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+        .world-map:hover { transform: scale(1.02); }
+
+        /* CARDS & SECTIONS */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; }
+        .card { background: rgba(255,255,255,0.95); backdrop-filter: blur(20px); padding: 3rem; border-radius: 24px; border: 1px solid rgba(255,255,255,0.3); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        h3 { font-size: 1.75rem; font-weight: 700; margin-bottom: 1.5rem; color: #1e293b; }
+        .list { list-style: none; margin-top: 1.5rem; }
+        .list li { padding: 0.75rem 0; padding-left: 2rem; position: relative; color: #374151; }
+        .list li::before { content: '→'; position: absolute; left: 0; color: #10b981; font-weight: bold; }
+        .tag-row { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.5rem; }
+        .tag { background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.85rem; font-weight: 500; }
+
+        /* ENHANCED DEMO */
+        .demo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; }
+        .demo-inputs { display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin: 2rem 0; }
+        .field { display: flex; flex-direction: column; }
+        .field label { font-weight: 600; margin-bottom: 0.5rem; color: #374151; }
+        .field input { padding: 1rem; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 1rem; transition: border-color 0.3s ease; }
+        .field input:focus { outline: none; border-color: #10b981; }
+        .demo-btn { width: 100%; margin-top: 1rem; }
+        .demo-output { background: linear-gradient(135deg, #f0fdf4, #dcfce7); padding: 2rem; border-radius: 16px; border: 2px solid #10b981; margin-top: 2rem; }
+        .demo-fsi { color: #10b981; font-size: 2rem; font-weight: 800; }
+        .demo-risk { color: #ef4444; font-weight: 700; }
+        .demo-advice { margin-top: 1.5rem; padding: 1.5rem; background: white; border-radius: 12px; border-left: 4px solid #10b981; }
+
+        /* NEW: SCENARIO BUTTONS */
+        .scenario-buttons { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin: 2rem 0; }
+        .scenario-btn { padding: 1rem; border: 2px solid #e2e8f0; background: white; border-radius: 12px; cursor: pointer; transition: all 0.3s ease; font-weight: 600; text-align: left; }
+        .scenario-btn:hover, .scenario-btn.active { border-color: #10b981; background: #f0fdf4; color: #059669; }
+
+        /* RESPONSIVE */
+        @media (max-width: 1200px) { .hero-grid { grid-template-columns: 1fr; gap: 3rem; } }
+        @media (max-width: 768px) { .grid-2, .demo-grid { grid-template-columns: 1fr; gap: 2rem; } .nav { flex-direction: column; gap: 1.5rem; align-items: stretch; } .hero { padding: 2rem 1rem; } }
+        footer { background: rgba(0,0,0,0.8); color: white; text-align: center; padding: 2rem; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <!-- APP SHELL: SIDEBAR + MAIN -->
+    <div class="app-shell">
+        <!-- LEFT SIDEBAR (Enhanced with Global Map nav) -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="sidebar-mark">N</div>
+                <div class="sidebar-text">
+                    <span>NutriGuard</span>
+                    <small>AI Food & Health Console</small>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <p class="sidebar-label">Navigation</p>
+                <button class="sidebar-item active" onclick="scrollToSection('top')">
+                    <span>Overview</span>
+                    <span class="sidebar-pill">FSI 0–100</span>
+                </button>
+                <button class="sidebar-item" onclick="scrollToSection('problem')">
+                    <span>Problem & Gaps</span>
+                </button>
+                <button class="sidebar-item" onclick="scrollToSection('framework')">
+                    <span>AI Framework</span>
+                </button>
+                <button class="sidebar-item" onclick="scrollToSection('demo')">
+                    <span>Live Risk Demo</span>
+                </button>
+                <button class="sidebar-item" onclick="scrollToSection('worldmap')">
+                    <span>🌍 Global Risk Map</span>
+                </button>
+                <button class="sidebar-item" onclick="scrollToSection('impact')">
+                    <span>Impact & Roadmap</span>
+                </button>
+            </div>
+
+            <div class="sidebar-section">
+                <p class="sidebar-label">Focus Regions</p>
+                <div class="sidebar-chips">
+                    <span class="chip-region active" onclick="filterRegion('South Asia')">South Asia</span>
+                    <span class="chip-region" onclick="filterRegion('Sub-Saharan Africa')">Sub-Saharan Africa</span>
+                    <span class="chip-region" onclick="filterRegion('MENA')">MENA</span>
+                </div>
+            </div>
+
+            <div class="sidebar-footer">
+                <p>Team: <strong>CoreStack</strong></p>
+                <p>team Leader: <strong>Jetra Kandoi</strong></p>
+                <p>team Member: <strong>Mahi,Mansi,Het</strong></p>
+                <p class="sidebar-meta">Parul University · 2026</p>
+            </div>
+        </aside>
+
+        <!-- MAIN SHELL -->
+        <div class="main-shell">
+            <!-- TOP NAV -->
+            <header>
+                <div class="nav">
+                    <div class="logo">
+                        <div class="logo-mark">N</div>
+                        <div class="logo-text">
+                            <span>NutriGuard</span>
+                            <span>AI Global Food Risk Monitor</span>
+                        </div>
+                    </div>
+                    <nav class="nav-links">
+                        <a href="#problem">Problem</a>
+                        <a href="#framework">Framework</a>
+                        <a href="#demo">Live Demo</a>
+                        <a href="#worldmap">Global Map</a>
+                        <a href="#impact">Roadmap</a>
+                    </nav>
+                    <button class="button-ghost" onclick="scrollToDemo()">
+                        🚀 Live Risk Demo
+                    </button>
+                </div>
+            </header>
+
+            <main>
+                <!-- HERO UPGRADED WITH COUNTRY SELECTOR -->
+                <section id="top" class="hero">
+                    <div class="hero-grid">
+                        <!-- LEFT SIDE -->
+                        <div>
+                            <div class="section-label">Parul University · Global Project</div>
+                            <div class="badge-row">
+                                <span class="badge-soft">AI · Optimization · Network Science</span>
+                                <span class="badge-soft">Food & Nutrition Security</span>
+                            </div>
+
+                            <h1 class="hero-title">
+                                AI for <span class="hero-highlight">Global Food Security & Health</span>
+                            </h1>
+                            <p class="hero-subtitle">
+                                NutriGuard converts multi-country production, trade, and health data into a
+                                single 0–100 Food Security Index, real-time vulnerability alerts, and
+                                evidence-based policy recommendations.
+                            </p>
+
+                            <div class="pill-row">
+                                <span class="pill">0–100 Food Security Index</span>
+                                <span class="pill">AI vulnerability assessment</span>
+                                <span class="pill">Optimal strategic reserves</span>
+                                <span class="pill">Systemic risk detection</span>
+                            </div>
+
+                            <div class="hero-cta">
+                                <button class="btn-primary" onclick="scrollToProblem()">
+                                    View Project Brief
+                                </button>
+                                <span class="hero-note">
+                                    Designed for policymakers, researchers & humanitarian agencies
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- RIGHT SIDE PANEL WITH NEW FEATURES -->
+                        <div class="hero-panel">
+                            <div class="hero-panel-inner">
+                                <!-- NEW: COUNTRY SELECTOR -->
+                                <div class="country-selector">
+                                    <select id="countrySelect" onchange="loadCountryData(this.value)">
+                                        <option value="india">India</option>
+                                        <option value="nigeria" selected>Nigeria</option>
+                                        <option value="yemen">Yemen</option>
+                                        <option value="bangladesh">Bangladesh</option>
+                                        <option value="ethiopia">Ethiopia</option>
+                                    </select>
+                                </div>
+
+                                <!-- TABS -->
+                                <div class="panel-tabs">
+                                    <button class="tab-button tab-active" data-tab="tab-fsi" onclick="switchHeroTab('tab-fsi')">
+                                        FSI Score
+                                    </button>
+                                    <button class="tab-button" data-tab="tab-trade" onclick="switchHeroTab('tab-trade')">
+                                        Trade Risk
+                                    </button>
+                                    <button class="tab-button" data-tab="tab-health" onclick="switchHeroTab('tab-health')">
+                                        Health Metrics
+                                    </button>
+                                </div>
+
+                                <!-- TAB 1: FSI -->
+                                <div class="tab-content tab-visible" id="tab-fsi">
+                                    <div class="panel-header">
+                                        <div>
+                                            <div class="panel-title">Country Snapshot</div>
+                                            <p class="panel-subtitle">AI-generated Food Security Index</p>
+                                        </div>
+                                        <div class="panel-badge">Scenario: Export shock · +30% prices</div>
+                                    </div>
+
+                                    <div class="score-display">
+                                        <span id="heroFSI">62.4</span>
+                                        <span>Food Security Index</span>
+                                    </div>
+
+                                    <div class="score-bars">
+                                        <div class="score-row">
+                                            <div class="score-name">Availability</div>
+                                            <div class="score-track"><div class="score-fill" style="width:68%;"></div></div>
+                                            <div class="score-value">68</div>
+                                        </div>
+                                        <div class="score-row">
+                                            <div class="score-name">Access</div>
+                                            <div class="score-track"><div class="score-fill" style="width:58%;"></div></div>
+                                            <div class="score-value">58</div>
+                                        </div>
+                                        <div class="score-row">
+                                            <div class="score-name">Nutrition</div>
+                                            <div class="score-track"><div class="score-fill" style="width:63%;"></div></div>
+                                            <div class="score-value">63</div>
+                                        </div>
+                                        <div class="score-row">
+                                            <div class="score-name">Stability</div>
+                                            <div class="score-track"><div class="score-fill risk" style="width:44%;"></div></div>
+                                            <div class="score-value">44</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="panel-footer">
+                                        <span class="chip">Key risk: High import dependence</span>
+                                        <span class="panel-footnote">AI alert: Crisis risk in 6–12 months</span>
+                                    </div>
+                                </div>
+
+                                <!-- TAB 2: TRADE RISK -->
+                                <div class="tab-content" id="tab-trade">
+                                    <div class="panel-header">
+                                        <div>
+                                            <div class="panel-title">Trade Exposure</div>
+                                            <p class="panel-subtitle">Global market shock vulnerability</p>
+                                        </div>
+                                        <div class="panel-badge">Systemic risk view</div>
+                                    </div>
+                                    <div class="mini-grid">
+                                        <div class="mini-card">
+                                            <div class="mini-label">Import dependence</div>
+                                            <div class="mini-value">72%</div>
+                                            <div class="mini-tag">Cereals & staples</div>
+                                        </div>
+                                        <div class="mini-card">
+                                            <div class="mini-label">Supplier risk</div>
+                                            <div class="mini-value danger">High</div>
+                                            <div class="mini-tag">Single-source exposure</div>
+                                        </div>
+                                    </div>
+                                    <p class="mini-note">AI suggests: Diversify suppliers + 3-4 months grain reserves</p>
+                                </div>
+
+                                <!-- TAB 3: HEALTH -->
+                                <div class="tab-content" id="tab-health">
+                                    <div class="panel-header">
+                                        <div>
+                                            <div class="panel-title">Health & Nutrition</div>
+                                            <p class="panel-subtitle">Undernourishment indicators</p>
+                                        </div>
+                                        <div class="panel-badge">Validation layer</div>
+                                    </div>
+                                    <div class="mini-grid">
+                                        <div class="mini-card">
+                                            <div class="mini-label">Undernourishment</div>
+                                            <div class="mini-value">14%</div>
+                                            <div class="mini-tag">Rural poor</div>
+                                        </div>
+                                        <div class="mini-card">
+                                            <div class="mini-label">Child stunting</div>
+                                            <div class="mini-value">22%</div>
+                                            <div class="mini-tag">Under 5 years</div>
+                                        </div>
+                                    </div>
+                                    <p class="mini-note">Recommended: Fortified staples + school feeding programs</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- NEW: WORLD MAP SECTION -->
+                    <div class="world-map-section" id="worldmap">
+                        <h3>🌍 Global Food Security Heatmap</h3>
+                        <p>Click countries to analyze FSI scores and trade vulnerabilities</p>
+                        <div class="world-map" onclick="showGlobalDemo()">
+                            🗺️ Interactive World Map<br>
+                            <small>Red = High Risk | Yellow = Medium | Green = Stable</small>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 2rem;">
+                            <div style="text-align: center;">
+                                <div style="width: 20px; height: 20px; background: #ef4444; border-radius: 50%; margin: 0 auto;"></div>
+                                <small>Critical (<50)</small>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="width: 20px; height: 20px; background: #f59e0b; border-radius: 50%; margin: 0 auto;"></div>
+                                <small>Warning (50-70)</small>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="width: 20px; height: 20px; background: #10b981; border-radius: 50%; margin: 0 auto;"></div>
+                                <small>Stable (>70)</small>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- PROBLEM SECTION (Original structure maintained) -->
+                <section id="problem">
+                    <div class="section-label">Problem statement</div>
+                    <div class="grid-2">
+                        <div class="card">
+                            <h3>Why current approaches fail</h3>
+                            <p>Most assessments track only single factors or publish static annual reports that miss rapid shocks.</p>
+                            <ul class="list">
+                                <li>Single-factor analysis hides poor household vulnerability.</li>
+                                <li>Siloed planning ignores regional trade cascades.</li>
+                                <li>Aid deployed after crises peak, not early warnings.</li>
+                            </ul>
+                        </div>
+                        <div class="card">
+                            <h3>Project objective</h3>
+                            <p>AI-powered framework with multi-factor FSI, vulnerability diagnosis, and targeted interventions.</p>
+                            <div class="tag-row">
+                                <span class="tag">Multi-factor FSI (0–100)</span>
+                                <span class="tag">Vulnerability diagnosis</span>
+                                <span class="tag">Reserve optimization</span>
+                                <span class="tag">Systemic risk mapping</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- FRAMEWORK (Original) -->
+                <section id="framework">
+                    <div class="section-label">AI assessment framework</div>
+                    <div class="grid-2">
+                        <div class="card">
+                            <h3>Data & indicators</h3>
+                            <p>Integrates production, trade, storage, prices, and health outcomes into unified model.</p>
+                            <ul class="list">
+                                <li>Per-country production (Pᵢ), requirements (Cᵢ), storage (S).</li>
+                                <li>Import networks with reliability scores.</li>
+                                <li>Health outcomes for FSI validation.</li>
+                            </ul>
+                        </div>
+                        <div class="card">
+                            <h3>AI engines</h3>
+                            <p>ML models simulate shocks and recommend preventive interventions.</p>
+                            <ul class="list">
+                                <li>FSI calculator (4 domains).</li>
+                                <li>Vulnerability driver ranking.</li>
+                                <li>Reserve & aid optimization.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ENHANCED DEMO WITH SCENARIOS -->
+                <section id="demo">
+                    <div class="section-label">Interactive Risk Demo</div>
+                    <div class="demo-grid">
+                        <div class="card">
+                            <h3>Quick Risk Estimator + Scenarios</h3>
+                            <p>Test how production shocks, storage gaps, or trade disruptions impact FSI.</p>
+
+                            <!-- NEW: SCENARIO BUTTONS -->
+                            <div class="scenario-buttons">
+                                <button class="scenario-btn" onclick="loadScenario('drought')">🌾 Drought (-20% Production)</button>
+                                <button class="scenario-btn" onclick="loadScenario('exportban')">🚫 Export Ban</button>
+                                <button class="scenario-btn" onclick="loadScenario('price_spike')">📈 Price Spike (+25%)</button>
+                                <button class="scenario-btn" onclick="loadScenario('normal')">➡️ Normal Conditions</button>
+                            </div>
+
+                            <div class="demo-inputs">
+                                <div class="field">
+                                    <label>Production vs requirement (%)</label>
+                                    <input type="number" id="prod" value="90" min="0" max="200">
+                                </div>
+                                <div class="field">
+                                    <label>Storage coverage (months)</label>
+                                    <input type="number" id="storage" value="3" min="0" max="24">
+                                </div>
+                                <div class="field">
+                                    <label>Import reliability (0–100)</label>
+                                    <input type="number" id="reliab" value="70" min="0" max="100">
+                                </div>
+                                <div class="field">
+                                    <label>Poverty stress (0–100)</label>
+                                    <input type="number" id="access" value="40" min="0" max="100">
+                                </div>
+                            </div>
+
+                            <button class="btn-primary demo-btn" onclick="computeDemo()">
+                                Analyze Country Risk
+                            </button>
+
+                            <div class="demo-output">
+                                <p>Estimated Food Security Index: <strong id="demoFSI" class="demo-fsi">–</strong> / 100</p>
+                                <p>Risk category: <strong id="demoRisk" class="demo-risk">–</strong></p>
+                                <div id="demoAdvice" class="demo-advice"></div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <h3>Policy Dashboard Preview</h3>
+                            <p>Full platform delivers real-time FSI, alerts, and recommendations.</p>
+                            <ul class="list">
+                                <li>Regional FSI heatmaps & risk dashboards.</li>
+                                <li>Early-warning alert system.</li>
+                                <li>Scenario simulation tools.</li>
+                            </ul>
+                            <div class="badge-risk" style="background: linear-gradient(135deg, #ef4444, #dc2626); color: white; padding: 1rem; border-radius: 12px; margin-top: 1.5rem;">
+                                <span style="font-size: 1.1rem; font-weight: 700;">ALERT</span>
+                                <div>"Grain export bans + drought" → 17 countries drop below FSI 50</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- IMPACT (Original) -->
+                <section id="impact">
+                    <div class="section-label">Impact & Roadmap</div>
+                    <div class="grid-2">
+                        <div class="card">
+                            <h3>Expected impact</h3>
+                            <p>Smarter decisions to protect nutrition, stabilize markets, reduce hunger crises.</p>
+                            <ul class="list">
+                                <li>Better reserve & aid targeting.</li>
+                                <li>Regional trade coordination.</li>
+                                <li>Continuous real-time monitoring.</li>
+                            </ul>
+                        </div>
+                        <div class="card">
+                            <h3>Future roadmap</h3>
+                            <p>Satellite data, climate models, Graph AI for trade networks.</p>
+                            <ul class="list">
+                                <li>FAO/World Bank real-time data.</li>
+                                <li>Trade network stress-testing.</li>
+                                <li>Policy co-design with governments.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+            </main>
+
+            <footer>
+                © 2026 Parul University · NutriGuard – AI Global Food & Health Risk Monitor · All rights reserved.
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        // Original functions preserved + NEW FEATURES
+        function scrollToSection(sectionId) {
+            document.getElementById(sectionId).scrollIntoView({ behavior: 'smooth' });
+            document.querySelectorAll('.sidebar-item').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function scrollToDemo() {
+            document.getElementById('demo').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function scrollToProblem() {
+            document.getElementById('problem').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function switchHeroTab(tabId) {
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('tab-active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('tab-visible'));
+            event.target.classList.add('tab-active');
+            document.getElementById(tabId).classList.add('tab-visible');
+        }
+
+        // NEW: Country selector
+        function loadCountryData(country) {
+            const data = {
+                india: { fsi: 68.2, availability: 75, access: 65, nutrition: 70, stability: 60 },
+                nigeria: { fsi: 62.4, availability: 68, access: 58, nutrition: 63, stability: 44 },
+                yemen: { fsi: 42.1, availability: 35, access: 48, nutrition: 45, stability: 38 },
+                bangladesh: { fsi: 58.7, availability: 62, access: 55, nutrition: 60, stability: 52 },
+                ethiopia: { fsi: 51.3, availability: 48, access: 52, nutrition: 55, stability: 49 }
+            };
+            
+            const countryData = data[country];
+            document.getElementById('heroFSI').textContent = countryData.fsi;
+            document.querySelectorAll('.score-fill')[0].style.width = countryData.availability + '%';
+            document.querySelectorAll('.score-fill')[1].style.width = countryData.access + '%';
+            document.querySelectorAll('.score-fill')[2].style.width = countryData.nutrition + '%';
+            document.querySelectorAll('.score-fill')[3].style.width = countryData.stability + '%';
+            document.querySelectorAll('.score-value')[0].textContent = countryData.availability;
+            document.querySelectorAll('.score-value')[1].textContent = countryData.access;
+            document.querySelectorAll('.score-value')[2].textContent = countryData.nutrition;
+            document.querySelectorAll('.score-value')[3].textContent = countryData.stability;
+        }
+
+        // NEW: Region filter
+        function filterRegion(region) {
+            document.querySelectorAll('.chip-region').forEach(chip => chip.classList.remove('active'));
+            event.target.classList.add('active');
+            // Future: Filter map by region
+            console.log('Filtering by:', region);
+        }
+
+        // NEW: Scenario loader
+        function loadScenario(scenario) {
+            const scenarios = {
+                drought: { prod: 70, storage: 2, reliab: 65, access: 55 },
+                exportban: { prod: 85, storage: 3, reliab: 30, access: 50 },
+                price_spike: { prod: 90, storage: 3, reliab: 70, access: 70 },
+                normal: { prod: 90, storage: 3, reliab: 70, access: 40 }
+            };
+            
+            const data = scenarios[scenario];
+            document.getElementById('prod').value = data.prod;
+            document.getElementById('storage').value = data.storage;
+            document.getElementById('reliab').value = data.reliab;
+            document.getElementById('access').value = data.access;
+            document.querySelectorAll('.scenario-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            computeDemo(); // Auto-calculate
+        }
+
+        // ENHANCED: Original demo logic
+        function computeDemo() {
+            const prod = parseFloat(document.getElementById('prod').value) || 90;
+            const storage = parseFloat(document.getElementById('storage').value) || 3;
+            const reliab = parseFloat(document.getElementById('reliab').value) || 70;
+            const access = parseFloat(document.getElementById('access').value) || 40;
+
+            // Enhanced FSI calculation
+            const availability = Math.min(100, prod * 0.8 + storage * 2 + reliab * 0.3);
+            const fsiAccess = Math.max(0, 100 - access * 0.8 + storage);
+            const nutrition = Math.min(90, (availability + fsiAccess) / 2);
+            const stability = reliab * 0.6 + storage * 3 + (prod > 85 ? 20 : 0);
+            const fsi = (availability * 0.3 + fsiAccess * 0.3 + nutrition * 0.2 + stability * 0.2).toFixed(1);
+
+            document.getElementById('demoFSI').textContent = fsi;
+            
+            let risk = 'Stable';
+            let advice = '';
+            if (fsi < 50) {
+                risk = 'CRITICAL';
+                advice = 'EMERGENCY: Immediate aid + 6 months emergency reserves required';
+            } else if (fsi < 65) {
+                risk = 'HIGH RISK';
+                advice = 'URGENT: Build 3-4 months reserves + diversify import sources';
+            } else if (fsi < 75) {
+                risk = 'WARNING';
+                advice = 'MONITOR: Increase storage capacity + regional cooperation';
+            } else {
+                risk = 'STABLE';
+                advice = 'MAINTAIN: Continue current policies + climate resilience planning';
+            }
+
+            document.getElementById('demoRisk').textContent = risk;
+            document.getElementById('demoRisk').style.color = fsi < 50 ? '#dc2626' : fsi < 65 ? '#f59e0b' : '#10b981';
+            document.getElementById('demoAdvice').innerHTML = `<strong>AI Recommendation:</strong> ${advice}`;
+        }
+
+        function showGlobalDemo() {
+            alert('Full interactive map with 100+ countries coming in v2.0!\n\nFeatures: Click-to-analyze, trade network graphs, real-time FSI updates.');
+        }
+
+        // Initialize
+        window.onload = function() {
+            computeDemo();
+            loadCountryData('nigeria');
+        };
+    </script>
+</body>
+</html>
